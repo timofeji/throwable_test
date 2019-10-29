@@ -12,7 +12,7 @@
 #include "Pickups/Throwable.h"
 #include "DrawDebugHelpers.h"
 #include "AbilitySystemComponent.h"
-
+#include "UnrealNetwork.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ADropGames_TestCharacter
@@ -69,8 +69,8 @@ void ADropGames_TestCharacter::SetupPlayerInputComponent(class UInputComponent* 
 {
     // Set up gameplay key bindings
     check(PlayerInputComponent);
-    PlayerInputComponent->BindAction("PickItem", IE_Pressed, this, &ADropGames_TestCharacter::PickItem);
-    PlayerInputComponent->BindAction("ThrowItem", IE_Pressed, this, &ADropGames_TestCharacter::ActivateThrowAbility);
+    PlayerInputComponent->BindAction("PickItem", IE_Pressed, this, &ADropGames_TestCharacter::PickItemServer);
+    PlayerInputComponent->BindAction("ThrowItem", IE_Pressed, this, &ADropGames_TestCharacter::ActivateThrowAbilityServer);
 
     
 
@@ -256,7 +256,14 @@ void ADropGames_TestCharacter::EnterDefaultCamMode()
     ThrowableModeCam -> Deactivate();
 }
 
-void ADropGames_TestCharacter::PickItem()
+void ADropGames_TestCharacter::PickItemServer_Implementation()
+{
+    if(HasAuthority())
+    {
+        PickItemMulticast();
+    }
+}
+void ADropGames_TestCharacter::PickItemMulticast_Implementation()
 {
     if(FocusedPickUpable)
     {
@@ -275,7 +282,23 @@ void ADropGames_TestCharacter::PickItem()
         }
     }
 }
-void ADropGames_TestCharacter::ActivateThrowAbility()
+
+void ADropGames_TestCharacter::GetLifetimeReplicatedProps( TArray< FLifetimeProperty > & OutLifetimeProps ) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(ADropGames_TestCharacter, PickedUpItem);
+    DOREPLIFETIME(ADropGames_TestCharacter, FocusedPickUpable);
+}
+
+void ADropGames_TestCharacter::ActivateThrowAbilityServer_Implementation()
+{
+    if(HasAuthority())
+    {
+        ActivateThrowAbilityMulticast();
+    }
+}
+void ADropGames_TestCharacter::ActivateThrowAbilityMulticast_Implementation()
 {
     if(PickedUpItem)
     {
@@ -283,6 +306,7 @@ void ADropGames_TestCharacter::ActivateThrowAbility()
         PlayAnimMontage(ThrowItemAnimation);
     }
 }
+
 bool ADropGames_TestCharacter::HasThrowableInHand() const
 {
     //check for pickupable

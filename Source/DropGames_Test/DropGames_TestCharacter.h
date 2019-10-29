@@ -87,6 +87,7 @@ public:
     
     /*FOCUS FUNCTIONALITY**/
 private:
+    UPROPERTY(Replicated)
     AActor* FocusedPickUpable;
     
     void CheckForPickUpableInView();
@@ -106,7 +107,7 @@ public:
     UPROPERTY(EditAnywhere, Category = "Animations")
     class UAnimMontage* ThrowItemAnimation;
     
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    UPROPERTY(VisibleAnywhere, Replicated, BlueprintReadOnly)
     AActor* PickedUpItem;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -134,15 +135,19 @@ public:
     void OnItemCanBePicked();
     UFUNCTION(BlueprintImplementableEvent)
     void OnItemCantBePicked();
-    UFUNCTION(BlueprintCallable)
-    void PickItem();
+    UFUNCTION(BlueprintCallable, Server, Reliable)
+    void PickItemServer();
+    UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+    void PickItemMulticast();
     
     /*THROWING FUNCTIONALITY**/
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Abilities, meta = (AllowPrivateAccess = "true"))
     TSubclassOf<class UGameplayAbility> ThrowAbility;
     
-    UFUNCTION(BlueprintCallable)
-    void ActivateThrowAbility();
+    UFUNCTION(BlueprintCallable, Server, Reliable)
+    void ActivateThrowAbilityServer();
+    UFUNCTION(BlueprintCallable, NetMulticast, Reliable)
+    void ActivateThrowAbilityMulticast();
     
     UFUNCTION(BlueprintCallable)
     bool HasThrowableInHand() const;
@@ -151,6 +156,5 @@ public:
     void AddHandAttachment(AActor* Attachment);
     UFUNCTION(BlueprintCallable)
     void ThrowItem();
-    
 };
 
