@@ -101,17 +101,17 @@ void ADropGames_TestCharacter::BeginPlay()
     Super::BeginPlay();
     if(AbilitySystem)
     {
-       if (HasAuthority() && ThrowAbility)
-       {
-           AbilitySystem->GiveAbility(FGameplayAbilitySpec(ThrowAbility.GetDefaultObject(), 1, 0));
-       }
-       AbilitySystem->InitAbilityActorInfo(this, this);
+        if (HasAuthority() && ThrowAbility)
+        {
+            AbilitySystem->GiveAbility(FGameplayAbilitySpec(ThrowAbility.GetDefaultObject(), 1, 0));
+        }
+        AbilitySystem->InitAbilityActorInfo(this, this);
     }
 }
+
 void ADropGames_TestCharacter::PossessedBy(AController * NewController)
 {
     Super::PossessedBy(NewController);
-    AbilitySystem->RefreshAbilityActorInfo();
 }
 
 void ADropGames_TestCharacter::OnResetVR()
@@ -295,6 +295,8 @@ void ADropGames_TestCharacter::ActivateThrowAbilityServer_Implementation()
 {
     if(HasAuthority())
     {
+        RefreshAbilities();
+        AbilitySystem -> TryActivateAbilityByClass(ThrowAbility, true);
         ActivateThrowAbilityMulticast();
     }
 }
@@ -302,7 +304,6 @@ void ADropGames_TestCharacter::ActivateThrowAbilityMulticast_Implementation()
 {
     if(PickedUpItem)
     {
-        AbilitySystem -> TryActivateAbilityByClass(ThrowAbility, true);
         PlayAnimMontage(ThrowItemAnimation);
     }
 }
@@ -329,4 +330,8 @@ void ADropGames_TestCharacter::ThrowItem()
             Throwable -> Throw(this);
         }
     }
+}
+void ADropGames_TestCharacter::RefreshAbilities()
+{
+    AbilitySystem->RefreshAbilityActorInfo();
 }

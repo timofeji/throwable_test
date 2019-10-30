@@ -156,5 +156,8 @@ public:
     void AddHandAttachment(AActor* Attachment);
     UFUNCTION(BlueprintCallable)
     void ThrowItem();
+    
+    UFUNCTION(BlueprintCallable)
+    void RefreshAbilities();
 };
 
